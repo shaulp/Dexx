@@ -8,10 +8,10 @@ class Template < ActiveRecord::Base
 	after_initialize :init_properties
 
 	def init_properties
-		@properties ||= ''
+		@properties ||= [] #!~!~!~!~
 	end
 	def pack_properties
-		self.packed_properties = @properties.reverse
+		self.packed_properties = @properties.to_json #!~!~!~!~!
 	end
 	def unpack_properties
 		@properties = (self.packed_properties||'').reverse

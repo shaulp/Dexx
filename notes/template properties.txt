@@ -1,0 +1,8 @@
+class TemplateProperty
+	{name, type, validation}
+	
+	def validate (value)
+		return nil || return regulated value
+		# means strings into dates, floats into dec. etc.
+	end
+end

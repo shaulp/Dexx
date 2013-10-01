@@ -1,5 +1,9 @@
 require 'spec_helper'
 
 describe Template do
-  pending "add some examples to (or delete) #{__FILE__}"
+  before { @template = Template.new(name: "Temptest1") }
+
+  subject { @template }
+
+  it { should respond_to(:name) }
 end
