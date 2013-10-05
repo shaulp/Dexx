@@ -6,3 +6,10 @@ class TemplateProperty
 		# means strings into dates, floats into dec. etc.
 	end
 end
+
+updating prioerties
+- deleting a property: including existing cards y/n
+- updating a property:
+	- if type, check conversion, convert and re-validate
+	- if validation, re-validate
+- revalidation: flag cards that do not comply

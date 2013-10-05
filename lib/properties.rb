@@ -1,23 +1,23 @@
 module Properties
 
 	class Property
-		attr_accessor :name, :type, :validation
+		attr_accessor :name, :validation
 
-		def initialize(name='', type='')
+		def initialize(name='')
 			@name=name
-			@type=type
 		end
-
+		def type
+			self.class.to_s
+		end
 		def validate(value)
 			nil
+		end
+		def pack
+			{type:type, name:name, validation:validation.to_s}
 		end
 	end
 
 	class StringProperty < Property
-		def initialize(name='')
-			super (name, 'String')
-		end
-
 		def validate(value)
 			return value.to_s
 		end
@@ -26,7 +26,7 @@ module Properties
 	class DecimalProperty < Property
 		def initialize(name='', frac_digits=2)
 			@frac_digits = frac_digits
-			super(name, 'Decimal')
+			super name
 		end
 
 		def validate(value)

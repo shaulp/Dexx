@@ -6,4 +6,6 @@ describe Template do
   subject { @template }
 
   it { should respond_to(:name) }
+  @template.add_property 'test-prop1', 'Properties::String'
+  @template.save
 end
