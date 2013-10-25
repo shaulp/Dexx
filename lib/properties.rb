@@ -3,14 +3,15 @@ module Properties
 	class Property
 		attr_accessor :name, :validation
 
-		def initialize(name='')
-			@name=name
+		def initialize(prop_def)
+			@name=prop_def[:name]
+			@validation = prop_def[:validation]
 		end
 		def type
 			self.class.to_s
 		end
 		def validate(value)
-			nil
+			value
 		end
 		def pack
 			{type:type, name:name, validation:validation.to_s}
@@ -24,13 +25,14 @@ module Properties
 	end
 
 	class DecimalProperty < Property
-		def initialize(name='', frac_digits=2)
-			@frac_digits = frac_digits
-			super name
+		def initialize(prop_def)
+			@frac_digits = prop_def[:frac_digits]||2
+			super prop_def
 		end
 
 		def validate(value)
-			value.to_d.round(@frac_digits)
+			f = Float(value) rescue nil
+			f.round(@frac_digits) if f 
 		end
 	end
 end

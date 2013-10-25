@@ -1,5 +1,5 @@
 class TemplatesController < ApplicationController
-  before_action :set_template, only: [:show, :edit, :update, :destroy]
+  before_action :set_template, only: [:show, :edit, :update, :destroy, :add_property, :update_property, :delete_property]
 
   # GET /templates
   # GET /templates.json
@@ -19,6 +19,16 @@ class TemplatesController < ApplicationController
 
   # GET /templates/1/edit
   def edit
+  end
+
+  def add_property
+    @template.add_property(template_property_params)
+  end
+  def update_property
+    @template.update_property(template_property_params)
+  end
+  def delete_property
+    @template.delete_property(template_property_params)
   end
 
   # POST /templates
@@ -64,11 +74,15 @@ class TemplatesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_template
-      @template = Template.find(params[:id])
+      @template = Template.find(params[:id]||params[:template_id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def template_params
       params.require(:template).permit(:name, :action)
+    end
+
+    def template_property_params
+      params.require(:template).permit(:name, :type, :validation)
     end
 end

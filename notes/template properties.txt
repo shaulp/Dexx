@@ -1,15 +1,16 @@
-class TemplateProperty
-	{name, type, validation}
-	
-	def validate (value)
-		return nil || return regulated value
-		# means strings into dates, floats into dec. etc.
-	end
-end
 
-updating prioerties
+updating templates
 - deleting a property: including existing cards y/n
 - updating a property:
 	- if type, check conversion, convert and re-validate
 	- if validation, re-validate
 - revalidation: flag cards that do not comply
+Deleting a template
+
+test json API
+
+Creating cards
+	- w/properties
+updating card properties
+card: template_id, title, properties
+make management of card properties a mixin for cards

@@ -1,5 +1,11 @@
 Dexx::Application.routes.draw do
-  resources :templates
+  resources :cards
+
+  resources :templates do
+    get "add_property"
+    get "delete_property"
+    get "update_property"
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
