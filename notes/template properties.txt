@@ -14,3 +14,19 @@ Creating cards
 updating card properties
 card: template_id, title, properties
 make management of card properties a mixin for cards
+
+template validations:
+ - mandatory "mandatory;"
+ - unique "unique;"
+ - String: max-length:nn; 
+ 			min length:nn;
+ 			email;
+ 			telno;
+ 			regex:rrr;
+ 			<:ss; <=:ss; >:ss; >=:ss;
+ - Date: before:dd; after:dd;
+ - Time: before:tt; after:tt;
+ - DateTime: before, after
+ - Number: above:nn; below:nn;
+ - List: included-in:[l1,l2,l3,..]
+ - Reference: Link:{template,property}

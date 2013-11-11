@@ -1,3 +1,5 @@
+require 'validations'
+
 module Properties
 
 	class Property
@@ -5,13 +7,13 @@ module Properties
 
 		def initialize(prop_def)
 			@name=prop_def[:name]
-			@validation = prop_def[:validation]
+			@validation = Validations::Validation.new prop_def[:validation]
 		end
 		def type
 			self.class.to_s
 		end
 		def validate(value)
-			value
+			@validation.validate(self, value)
 		end
 		def pack
 			{type:type, name:name, validation:validation.to_s}
@@ -35,4 +37,20 @@ module Properties
 			f.round(@frac_digits) if f 
 		end
 	end
+
+	class DateProperty < Property
+		def validate(value)
+			if value.is_a? Date
+				value
+			elsif value is_a? String
+				Date.parse value rescue nil
+			else
+				nil
+			end
+		end
+	end
+
+	class ListProperty < Property
+	end
+
 end
