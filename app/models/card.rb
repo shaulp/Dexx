@@ -18,7 +18,7 @@ class Card < ActiveRecord::Base
 		@properties = JSON.parse self.packed_properties
 	end
 	def set(name, value)
-		if template.validate name:name, value:value, err:errors
+		if template.validate name:name, card:self, value:value, err:errors
 			@properties[name] = value
 		end
 	end

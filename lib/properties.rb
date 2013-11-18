@@ -12,8 +12,9 @@ module Properties
 		def type
 			self.class.to_s
 		end
-		def validate(value)
-			@validation.validate(self, value)
+		def validate(prop_set)
+			prop_set[:property] = self
+			@validation.validate(prop_set)
 		end
 		def pack
 			{type:type, name:name, validation:validation.to_s}
@@ -21,8 +22,9 @@ module Properties
 	end
 
 	class StringProperty < Property
-		def validate(value)
-			return value.to_s
+		def validate(prop_set)
+			prop_set[:value] = prop_set[:value].to_s
+			super prop_set
 		end
 	end
 
@@ -32,21 +34,26 @@ module Properties
 			super prop_def
 		end
 
-		def validate(value)
-			f = Float(value) rescue nil
-			f.round(@frac_digits) if f 
+		def validate(prop_set)
+			f = Float(prop_set[:value]) rescue nil
+			if f
+				prop_set[:value] = f.round(@frac_digits)
+				super prop_set
+			else
+				prop_set[:err].add "i18> Value is not a number"
+			end
 		end
 	end
 
 	class DateProperty < Property
 		def validate(value)
-			if value.is_a? Date
-				value
-			elsif value is_a? String
-				Date.parse value rescue nil
-			else
-				nil
-			end
+			#if value.is_a? Date
+			#	value
+			#elsif value is_a? String
+			#	Date.parse value rescue nil
+			#else
+			#	nil
+			#end
 		end
 	end
 

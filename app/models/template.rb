@@ -38,7 +38,7 @@ class Template < ActiveRecord::Base
 	def validate(prop_set)
 		prop = get_property(prop_set[:name])
 		return nonexistant_property(prop_set) if prop.nil?
-		val = prop.validate prop_set[:value]
+		val = prop.validate prop_set
 		return inavlid_property_value(prop_set) if val.nil?
 		return val
 	end
