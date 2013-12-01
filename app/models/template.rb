@@ -25,7 +25,7 @@ class Template < ActiveRecord::Base
 	def add_property(prop_def)
 		@properties.each do |p|
 			if p.name == prop_def[:name]
-				errors.add :base, "i18> Property '#{p.name}' already exists"
+				errors.add p.name.to_sym, "i18> Property already exists"
 				return nil
 			end
 		end
@@ -35,20 +35,19 @@ class Template < ActiveRecord::Base
 	def remove_property(name)
 		@properties.delete_if {|p| p.name==name}
 	end
-	def validate(prop_set)
-		prop = get_property(prop_set[:name])
-		return nonexistant_property(prop_set) if prop.nil?
-		val = prop.validate prop_set
-		return inavlid_property_value(prop_set) if val.nil?
+	def validate(card, prop_name, value)
+		prop = get_property(prop_name)
+		if prop.nil?
+			nonexistant_property(card, prop_name) 
+			return nil
+		end
+		val = prop.validate card, value
 		return val
 	end
 	def get_property(name)
 		(@properties.select {|p| p.name==name})[0]
 	end
-	def inavlid_property_value(prop_set)
-			prop_set[:err].add :base, "i18> '#{prop_set[:value]}' is not a valid value for '#{prop_set[:name]}'"
-	end
-	def nonexistant_property(prop_set)
-		prop_set[:err].add :base, "i18> Nonexistant property '#{prop_set[:name]}'"
+	def nonexistant_property(card, prop_name)
+		card.add_error "i18> Property #{prop_name} does not exists"
 	end
 end

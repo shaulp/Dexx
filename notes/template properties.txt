@@ -1,3 +1,14 @@
+Create link property
+{
+	can reference any property of any template
+	{template:t, property:p, value:v} : all cards
+	Card.search
+	?option to freeze a link (Card.id)
+	- {card_id:id}
+
+}
+valid property name text, numbers, _, '
+
 
 updating templates
 - deleting a property: including existing cards y/n
@@ -13,7 +24,6 @@ Creating cards
 	- w/properties
 updating card properties
 card: template_id, title, properties
-make management of card properties a mixin for cards
 
 template validations:
  - mandatory "mandatory;"
@@ -28,5 +38,5 @@ template validations:
  - Time: before:tt; after:tt;
  - DateTime: before, after
  - Number: above:nn; below:nn;
- - List: included-in:[l1,l2,l3,..]
+ + List: included-in:[l1,l2,l3,..]
  - Reference: Link:{template,property}

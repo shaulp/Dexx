@@ -26,13 +26,13 @@ module Conditions
 
 	class Mandatory < Condition
 		def check(v)
-			if v.property.is_a? Properties::StringProperty
-				if v.value.nil? || v.value.empty?
-					v.add_error "i18> A value must be supplied for '#{v.property.name}'"
-					return false
-				end
-			end
-			return true unless v.value.nil?
+			raise ArgumentError.new if v.value.nil?
+			raise ArgumentError.new if v.value.empty? && \
+																 v.property.is_a?(Properties::StringProperty)
+			return true
+		rescue ArgumentError
+			v.add_error "i18> A value must be supplied'."
+			return false
 		end
 	end
 
@@ -44,29 +44,79 @@ module Conditions
 			@min_length = params[0].to_i
 		end
 		def check(v)
-			v.value.length >= @min_length
+			raise ArgumentError if v.value.length < @min_length
+			return true
+		rescue ArgumentError
+			v.add_error "i18> The value must be at least #{@min_length} caracters long."
+			return false
 		end
 	end
 
 	class LengthAtMost < Condition
+		def initialize(params)
+			@max_length = params[0].to_i
+		end
+		def check(v)
+			raise ArgumentError if v.value.length > @max_length
+			return true
+		rescue ArgumentError
+			v.add_error "i18> The value must not be longer than #{@max_length} caracters."
+			return false
+		end
 	end
 
-	class GreaterThan < Condition
+	class ScalarCheck < Condition
+		def initialize(params)
+			@scalar = params[0]
+			@operator = params[1]
+			@message = params[2]
+		end
+		def check(v)
+			return true if v.value.send(@operator, @scalar)
+			v.add_error @message
+			return false
+		end
 	end
 
-	class LessThan < Condition
+	class GreaterThan < ScalarCheck
+		def initialize(params)
+			params.push '>', "i18> The value must be greater than #{params[0]}."
+			super params
+		end
 	end
 
-	class GreaterOrEqual < Condition
+	class LessThan < ScalarCheck
+		def initialize(params)
+			params.push '<', "i18> The value must be less than #{params[0]}."
+			super params
+		end
 	end
 
-	class LessOrEqual < Condition
+	class GreaterOrEqual < ScalarCheck
+		def initialize(params)
+			params.push '>=', "i18> The value must be greater than or equal to #{params[0]}."
+			super params
+		end
+	end
+
+	class LessOrEqual < ScalarCheck
+		def initialize(params)
+			params.push '<=', "i18> The value must be less than or equal to #{params[0]}."
+			super params
+		end
 	end
 
 	class Pattern < Condition
 	end
 
 	class List < Condition
+		def initialize(params)
+			@list = params[0].split(/[<>]/)
+			@list.delete ""
+		end
+		def check(v)
+			@list.member?(v.value)
+		end
 	end
 
 	class Referrence < Condition
@@ -76,7 +126,12 @@ module Conditions
 		/^Mandatory$/i => Conditions::Mandatory,
 		/^Unique$/i => Conditions::Unique,
 		/^Max-length:(\d+?)$/i => Conditions::LengthAtMost,
-		/^Min-length:(\d+?)$/i => Conditions::LengthAtLeast
+		/^Min-length:(\d+?)$/i => Conditions::LengthAtLeast,
+		/^<(\d+?)$/i => Conditions::LessThan,
+		/^>(\d+?)$/i => Conditions::GreaterThan,
+		/^<=(\d+?)$/i => Conditions::LessOrEqual,
+		/^>=(\d+?)$/i => Conditions::GreaterOrEqual,
+		/^List:(<[\w _']+(><[\w _']+)*>)$/ => Conditions::List
 	}
 
 end
