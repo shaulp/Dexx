@@ -6,10 +6,11 @@ module Conditions
 			condition_set.split(';').each do |text|
 				Condition_clauses.each do |reg,cond_class|
 					if match = reg.match(text)
-						conditions << cond_class.new(match[1..-1])
+						conditions << cond_class.new(match[1..-1]) rescue nil
 					end
 				end
 			end
+			conditions.compact!
 			return nil if conditions.empty?
 			conditions
 		end
@@ -119,7 +120,23 @@ module Conditions
 		end
 	end
 
-	class Referrence < Condition
+	class Link < Condition
+		def check(v)
+			Card.exists(v.value.to_i)
+		end
+	end
+
+	class Referrence <Condition
+		def initialize(params)
+			@template = Template.find(name:params[0])
+			raise TypeError unless @template
+			@property = template.get_property(params[1])
+			raise TypeError unless @property
+			@value = params[2]
+		end
+		def check(v)
+			
+		end
 	end
 
 	Condition_clauses = {
@@ -131,7 +148,9 @@ module Conditions
 		/^>(\d+?)$/i => Conditions::GreaterThan,
 		/^<=(\d+?)$/i => Conditions::LessOrEqual,
 		/^>=(\d+?)$/i => Conditions::GreaterOrEqual,
-		/^List:(<[\w _']+(><[\w _']+)*>)$/ => Conditions::List
+		/^List:(<[\w _']+(><[\w _']+)*>)$/ => Conditions::List,
+		/^Link$/i => Conditions::Link,
+		/^Ref:{([\w]+)\/([\w]+)=([\w _']+)}$/ => Conditions::Referrence
 	}
 
 end

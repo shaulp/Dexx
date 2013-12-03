@@ -1,11 +1,10 @@
-Create link property
+Create reference property
 {
 	can reference any property of any template
 	{template:t, property:p, value:v} : all cards
 	Card.search
 	?option to freeze a link (Card.id)
 	- {card_id:id}
-
 }
 valid property name text, numbers, _, '
 
