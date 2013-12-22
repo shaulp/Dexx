@@ -20,7 +20,7 @@ module Properties
 			if value
 				@validation.validate(card, self, value)
 			else
-				card.add_property_error self, "i18> Type mismatch: #{self.class} / #{raw_value}"
+				card.add_property_error self, "i18> Bad property value: #{self.class} / #{raw_value}"
 				nil
 			end
 		end
@@ -66,4 +66,9 @@ module Properties
 		end
 	end
 
+	class LinkProperty < Property
+		def convert(value)
+			value.to_i<=0 ? nil : value.to_i
+		end
+	end
 end

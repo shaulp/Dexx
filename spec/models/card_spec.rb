@@ -38,6 +38,8 @@ describe Card do
       it "actual property value must be valid" do
         @card.set 'tp2', 'abcd'
         @card.errors.should_not be_empty
+        @card.set 'tp2', 12.3
+        @card.errors.should be_empty
       end
       it "can be saved with all properties" do
         @card.set 'tp1', 'some-value'

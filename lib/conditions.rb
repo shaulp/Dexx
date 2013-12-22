@@ -1,19 +1,21 @@
+require 'lookups'
+
 module Conditions
 
-		def self.extract_conditions(condition_set)
-			return nil if condition_set.nil?
-			conditions = []
-			condition_set.split(';').each do |text|
-				Condition_clauses.each do |reg,cond_class|
-					if match = reg.match(text)
-						conditions << cond_class.new(match[1..-1]) rescue nil
-					end
+	def self.extract_conditions(condition_set)
+		return nil if condition_set.nil?
+		conditions = []
+		condition_set.split(';').each do |text|
+			Condition_clauses.each do |reg,cond_class|
+				if match = reg.match(text)
+					conditions << cond_class.new(match[1..-1]) rescue nil
 				end
 			end
-			conditions.compact!
-			return nil if conditions.empty?
-			conditions
 		end
+		conditions.compact!
+		return nil if conditions.empty?
+		conditions
+	end
 
 	class Condition
 
@@ -122,7 +124,7 @@ module Conditions
 
 	class Link < Condition
 		def check(v)
-			Card.exists(v.value.to_i)
+			Card.exists?(v.value)
 		end
 	end
 
@@ -132,10 +134,10 @@ module Conditions
 			raise TypeError unless @template
 			@property = template.get_property(params[1])
 			raise TypeError unless @property
-			@value = params[2]
 		end
 		def check(v)
-			
+			cards = Lookups.card_with_properties @template, @property => v.value
+			!cards.empty?
 		end
 	end
 
@@ -150,7 +152,7 @@ module Conditions
 		/^>=(\d+?)$/i => Conditions::GreaterOrEqual,
 		/^List:(<[\w _']+(><[\w _']+)*>)$/ => Conditions::List,
 		/^Link$/i => Conditions::Link,
-		/^Ref:{([\w]+)\/([\w]+)=([\w _']+)}$/ => Conditions::Referrence
+		/^Ref:{([\w]+)\/([\w]+)}$/ => Conditions::Referrence
 	}
 
 end
