@@ -1,7 +1,7 @@
 require 'properties'
 
 class Template < ActiveRecord::Base
-	validates :name, presence:true
+	validates :name, presence:true, uniqueness:true
 
 	attr_accessor :properties # virtual fields
 	has_many :cards

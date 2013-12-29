@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131020163155) do
+ActiveRecord::Schema.define(version: 20131226173854) do
 
   create_table "cards", force: true do |t|
     t.integer  "template_id"
@@ -27,5 +27,7 @@ ActiveRecord::Schema.define(version: 20131020163155) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "templates", ["name"], name: "index_templates_on_name", unique: true, using: :btree
 
 end

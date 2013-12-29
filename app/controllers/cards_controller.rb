@@ -24,7 +24,14 @@ class CardsController < ApplicationController
   # POST /cards
   # POST /cards.json
   def create
-    @card = Card.new(card_params)
+    logger.info ">>>>> In create Params: #{params.inspect}"
+    if !params[:template_id] && params[:template_name]
+      logger.info ">>>>> Fetching tid for #{params[:template_name]}"
+      params[:template_id] = Template.find_by_name(params[:template_name]).id
+      logger.info ">>>>> ..... got #{params[:template_id]}"
+    end
+
+    @card = Card.new(params)
 
     respond_to do |format|
       if @card.save
@@ -41,7 +48,7 @@ class CardsController < ApplicationController
   # PATCH/PUT /cards/1.json
   def update
     respond_to do |format|
-      if @card.update(card_params)
+      if @card.update(card_update_params)
         format.html { redirect_to @card, notice: 'Card was successfully updated.' }
         format.json { render json: @card.properties }
       else
@@ -62,13 +69,16 @@ class CardsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_card
       @card = Card.find(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
-    def card_params
-      params.require(:card).permit(:template_id, :title, :properties)
+    def card_create_params
+      logger.info ">>>>> In card_create: #{params.inspect}"
+      params.require(:card).permit(:template_id, :template_name, :title, :properties)
+    end
+    def card_update_params
+      params.require(:card).permit(:title, :properties)
     end
 end
