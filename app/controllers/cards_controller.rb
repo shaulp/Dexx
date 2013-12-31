@@ -1,5 +1,6 @@
 class CardsController < ApplicationController
   before_action :set_card, only: [:show, :edit, :update, :destroy]
+  before_action :set_template, only:[:create]
 
   # GET /cards
   # GET /cards.json
@@ -24,22 +25,22 @@ class CardsController < ApplicationController
   # POST /cards
   # POST /cards.json
   def create
-    logger.info ">>>>> In create Params: #{params.inspect}"
-    if !params[:template_id] && params[:template_name]
-      logger.info ">>>>> Fetching tid for #{params[:template_name]}"
-      params[:template_id] = Template.find_by_name(params[:template_name]).id
-      logger.info ">>>>> ..... got #{params[:template_id]}"
-    end
-
-    @card = Card.new(params)
-
     respond_to do |format|
-      if @card.save
-        format.html { redirect_to @card, notice: 'Card was successfully created.' }
-        format.json { render action: 'show', status: :created, location: @card }
+      if !@template
+        format.json { render json: {status:'Error', details:"i18> Template '#{params[:template_name]}'' not found."} }
+        format.html {
+          flash.now[:error] = "i18> Template '#{params[:template_name]}'' not found."
+          render action: 'new' 
+        }
       else
-        format.html { render action: 'new' }
-        format.json { render json: @card.errors, status: :unprocessable_entity }
+        @card = Card.new(card_create_params)
+        if @card.save
+          format.html { redirect_to @card, notice: 'i18> Card was successfully created.' }
+          format.json { render json: @card }
+        else
+          format.html { render action: 'new' }
+          format.json { render json: {status:'Error', details:@card.errors}} #, status: :unprocessable_entity }
+        end
       end
     end
   end
@@ -75,10 +76,15 @@ class CardsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def card_create_params
-      logger.info ">>>>> In card_create: #{params.inspect}"
       params.require(:card).permit(:template_id, :template_name, :title, :properties)
     end
     def card_update_params
       params.require(:card).permit(:title, :properties)
+    end
+    def set_template
+      if params[:template_name]
+        @template = Template.find_by_name(params[:template_name])
+        params[:card][:template_id] = @template.id if @template
+      end
     end
 end

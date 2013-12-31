@@ -1,5 +1,5 @@
 class Card < ActiveRecord::Base
-	attr_accessor :properties, :template_name # virtual field
+	attr_accessor :properties # virtual field
 	validates :template, presence:true
 	validates :title, presence:true
 	belongs_to :template

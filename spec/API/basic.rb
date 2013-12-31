@@ -19,6 +19,9 @@ def create_card(title, template_name)
 		) do |f|
 		f.each_line {|l| puts l}
 	end
+rescue Exception => msg
+	puts msg
+	puts 
 end
 
 #create_template "test-template-1"
