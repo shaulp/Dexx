@@ -2,9 +2,12 @@ Dexx::Application.routes.draw do
   resources :cards
 
   resources :templates do
-    get "add_property"
-    get "delete_property"
-    get "update_property"
+    collection do
+      put "add_property"
+      put "delete_property"
+      put "update_property"
+      #put "test"
+    end
   end
 
   # The priority is based upon order of creation: first created -> highest priority.

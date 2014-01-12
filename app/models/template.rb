@@ -23,14 +23,19 @@ class Template < ActiveRecord::Base
 		props.each {|p| add_property p}
 	end
 	def add_property(prop_def)
+		prop_type = prop_def[:type].sub "Properties::", ""
 		@properties.each do |p|
 			if p.name == prop_def[:name]
 				errors.add p.name.to_sym, "i18> Property already exists"
 				return nil
 			end
 		end
-		p = Object.const_get("Properties::#{prop_def[:type]}").new(prop_def)
-		@properties.push p
+		if Properties.valid_type? prop_type
+			p = Object.const_get("Properties::#{prop_type}").new(prop_def)
+			@properties.push p
+		else
+			errors.add :base, "i18> #{prop_def[:type]} is not a valid property type."
+		end
 	end
 	def remove_property(name)
 		@properties.delete_if {|p| p.name==name}

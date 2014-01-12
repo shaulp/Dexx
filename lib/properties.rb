@@ -1,19 +1,28 @@
 require 'validations'
+#require 'conditions'
 
 module Properties
+
+	def Properties.valid_type?(property_name)
+		ret = Properties.const_defined?(property_name.to_sym) rescue false
+		return ret && property_name.to_sym != :Property
+	end
 
 	class Property
 		attr_accessor :name, :validation
 
 		def initialize(prop_def)
 			@name=prop_def[:name]
-			@validation = Validations::Validation.new prop_def[:validation]
+			@validation = Validations::Validation.new prop_def[:validation], self.type
 		end
 		def type
 			self.class.to_s
 		end
 		def convert(value)
 			value
+		end
+		def applicable_condition?(condition)
+			false
 		end
 		def validate(card, raw_value)
 			value = convert(raw_value)
@@ -33,6 +42,13 @@ module Properties
 		def convert(value)
 			value.to_s
 		end
+		def applicable_condition?(condition)
+			[Conditions::Mandatory, Conditions::Unique, Conditions::LengthAtLeast,
+				Conditions::LengthAtMost, Conditions::GreaterThan, Conditions::LessThan,
+				Conditions::GreaterOrEqual, Conditions::LessOrEqual, Conditions::Pattern, 
+				Conditions::List, Conditions::Referrence
+				].member? condition
+		end
 	end
 
 	class DecimalProperty < Property
@@ -46,6 +62,12 @@ module Properties
 				f.round(@frac_digits)
 			end
 		end
+		def applicable_condition?(condition)
+			[Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
+				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+				Conditions::List, Conditions::Referrence
+				].member? condition
+		end
 	end
 
 	class DateProperty < Property
@@ -57,6 +79,12 @@ module Properties
 			else
 				nil
 			end
+		end
+		def applicable_condition?(condition)
+			[Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
+				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+				Conditions::List, Conditions::Referrence
+				].member? condition
 		end
 	end
 
