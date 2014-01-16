@@ -32,7 +32,11 @@ class Template < ActiveRecord::Base
 		end
 		if Properties.valid_type? prop_type
 			p = Object.const_get("Properties::#{prop_type}").new(prop_def)
-			@properties.push p
+			if p.valid?
+				@properties.push p
+			else
+				errors.add :base, "i18> Error creating property #{prop_def[:name]}: #{p.errors}."
+			end
 		else
 			errors.add :base, "i18> #{prop_def[:type]} is not a valid property type."
 		end

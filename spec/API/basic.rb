@@ -5,6 +5,17 @@ def rand_string(len)
 	(0..len).map {(65+rand(26)).chr}.join
 end
 
+def dexx_call(stop_on_error=false)
+	return unless block_given?
+	resp = yield
+	if resp["status"]=="ok"
+		puts "."
+	else
+		puts "\n" << resp
+		exit if stop_on_error
+	end
+end
+
 def create_template(name)
 	resp=""
 	open('http://localhost:3000/templates.json', 
@@ -42,15 +53,17 @@ rescue Exception => msg
 	puts e
 end
 
-resp = create_template "test-template-"+rand_string(5)
-if resp["status"]=="ok"
-	puts "New Template created id:#{resp["template"]["id"]} name:#{resp["template"]["name"]}"
-	tid = resp["template"]["id"]
-	resp = add_prop_to_template tid, "dec", "DecimalProperty", "<12"
-	puts resp
-else
-	puts "Error creating template - #{resp["message"]}"
-end
+dexx_call { create_template "test-template-"+rand_string(5) }
+dexx_call { create_template "" }
+#resp = create_template "test-template-"+rand_string(5)
+#if resp["status"]=="ok"
+#	puts "New Template created id:#{resp["template"]["id"]} name:#{resp["template"]["name"]}"
+#	tid = resp["template"]["id"]
+#	resp = add_prop_to_template tid, "dec", "DecimalProperty", "Max-length:3"
+#	puts resp
+#else
+#	puts "Error creating template - #{resp["message"]}"
+#end
 
 
 #puts "#{add_prop_to_template(23, "n2", "DecimalProperty", "Max-length:3")}"

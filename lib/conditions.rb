@@ -2,17 +2,25 @@ require 'lookups'
 
 module Conditions
 
-	def self.extract_conditions(condition_set)
+	def self.extract_conditions(condition_set, property)
 		return nil if condition_set.nil?
 		conditions = []
 		condition_set.split(';').each do |text|
+			new_cond = nil
 			Condition_clauses.each do |reg,cond_class|
 				if match = reg.match(text)
-					conditions << cond_class.new(match[1..-1]) rescue nil
+					new_cond = cond_class.new(match[1..-1]) rescue nil
+					break
 				end
 			end
+			if new_cond
+				if property.applicable_condition? (new_cond) 
+					condition << new_cond
+				end
+			else
+				property.add_error "i18> Could not create condition from #{text}"
+			end
 		end
-		conditions.compact!
 		return nil if conditions.empty?
 		conditions
 	end

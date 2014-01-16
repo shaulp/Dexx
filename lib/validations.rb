@@ -3,9 +3,9 @@ require 'conditions'
 module Validations
 
 	class Validation
-		def initialize(condition_set)
+		def initialize(condition_set, property)
 			@conditions_text = condition_set # for packing
-			@conditions = Conditions::extract_conditions(condition_set)
+			@conditions = Conditions::extract_conditions(condition_set, property)
 		end
 		def validate(card, property, value)
 			return true unless @conditions
