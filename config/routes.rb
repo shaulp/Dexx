@@ -6,7 +6,6 @@ Dexx::Application.routes.draw do
       put "add_property"
       put "delete_property"
       put "update_property"
-      #put "test"
     end
   end
 

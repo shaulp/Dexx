@@ -10,9 +10,9 @@ module Properties
 
 	class Property
 		attr_accessor :name, :validation, :errors
-		Applicable_Condition =[]
 
 		def initialize(prop_def)
+			@applicable_conditions ||= []
 			@name=prop_def[:name]
 			@validation = Validations::Validation.new prop_def[:validation], self
 		end
@@ -20,10 +20,10 @@ module Properties
 			self.class.to_s
 		end
 		def convert(value)
-			value
+			value.to_s
 		end
 		def applicable_condition?(c)
-			if Applicable_Condition.member? c.class
+			if @applicable_conditions.member? c.class
 				return true
 			else
 				add_error "i18> #{c.class} cannot be applied to a #{self.class}"
@@ -51,24 +51,24 @@ module Properties
 	end
 
 	class StringProperty < Property
-		Applicable_Condition = [
+		def initialize(prop_def)
+			@applicable_conditions = [
 				Conditions::Mandatory, Conditions::Unique, 
 				Conditions::LengthAtLeast, Conditions::LengthAtMost, Conditions::GreaterThan, 
 				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
 				Conditions::Pattern, Conditions::List, Conditions::Referrence]
-
-		def convert(value)
-			value.to_s
+			super prop_def
 		end
 	end
 
 	class DecimalProperty < Property
-		Applicable_Condition = [
-			Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
-			Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
-			Conditions::List, Conditions::Referrence]
 
 		def initialize(prop_def)
+			@applicable_conditions = [
+				Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
+				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+				Conditions::List, Conditions::Referrence]
+
 			@frac_digits = prop_def[:frac_digits]||2
 			super prop_def
 		end
@@ -81,10 +81,13 @@ module Properties
 	end
 
 	class DateProperty < Property
-		Applicable_Condition = [
-			Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
-			Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
-			Conditions::List, Conditions::Referrence]
+		def initialize(prop_def)
+			@applicable_conditions = [
+				Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
+				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+				Conditions::List, Conditions::Referrence]
+			super prop_def
+		end
 
 		def convert(value)
 			if value.is_a? DateTime
@@ -94,12 +97,6 @@ module Properties
 			else
 				nil
 			end
-		end
-	end
-
-	class ListProperty < Property
-		def convert(value)
-			value.to_s
 		end
 	end
 

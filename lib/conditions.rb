@@ -15,7 +15,7 @@ module Conditions
 			end
 			if new_cond
 				if property.applicable_condition? (new_cond) 
-					condition << new_cond
+					conditions << new_cond
 				end
 			else
 				property.add_error "i18> Could not create condition from #{text}"

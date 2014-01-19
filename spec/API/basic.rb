@@ -5,14 +5,23 @@ def rand_string(len)
 	(0..len).map {(65+rand(26)).chr}.join
 end
 
-def dexx_call(stop_on_error=false)
+def dexx_end
+	puts "end"
+end
+
+def dexx_call(expect_pass=true)
 	return unless block_given?
-	resp = yield
-	if resp["status"]=="ok"
-		puts "."
+	$resp = yield
+	if $resp["status"]=="ok"
+		print "." if expect_pass
+		print "X" if !expect_pass
 	else
-		puts "\n" << resp
-		exit if stop_on_error
+		if expect_pass
+			puts "\n#{$resp}\nExecution stopped!"
+			exit
+		else
+			print "."
+		end
 	end
 end
 
@@ -41,33 +50,30 @@ def add_prop_to_template(id, name, type, validation)
 end
 
 def create_card(title, template_name)
+	resp=""
 	open('http://localhost:3000/cards.json', 
 		:method => :post, 
 		"content-type" => 'application/json',
 		:body => {title:title, template_name:template_name}.to_json
 		) do |f|
-		f.each_line {|l| puts l}
+		f.each_line {|l| resp << l}
 	end
-rescue Exception => msg
-	puts msg
-	puts e
+	JSON.parse(resp)
 end
 
-dexx_call { create_template "test-template-"+rand_string(5) }
-dexx_call { create_template "" }
-#resp = create_template "test-template-"+rand_string(5)
-#if resp["status"]=="ok"
-#	puts "New Template created id:#{resp["template"]["id"]} name:#{resp["template"]["name"]}"
-#	tid = resp["template"]["id"]
-#	resp = add_prop_to_template tid, "dec", "DecimalProperty", "Max-length:3"
-#	puts resp
-#else
-#	puts "Error creating template - #{resp["message"]}"
-#end
+tname = "test-template-"+rand_string(5)
+dexx_call { create_template tname }
+tid = $resp["template"]["id"]
+#dexx_call (false) { add_prop_to_template tid, "dec", "DecimalProperty", "Max-length:3" }
+#dexx_call { add_prop_to_template tid, "dec", "DecimalProperty", "<33" }
+#dexx_call { add_prop_to_template tid, "str", "StringProperty", "Max-length:10" }
+#dexx_call { add_prop_to_template tid, "dat", "DateProperty", "" }
 
+cname = "test-card-"+rand_string(5)
+dexx_call { create_card cname, tname }
 
-#puts "#{add_prop_to_template(23, "n2", "DecimalProperty", "Max-length:3")}"
-#puts "#{add_prop_to_template(23, "n3", "DecimalProperty", "Max-length:3")}"
+dexx_end
+
 #create_card "test-card-1", "test-template-1"
 #model={"a" => 1, "b" => {"c" => 3}}
 #h= {"a" => 3, "b" => {"c" => 55}}

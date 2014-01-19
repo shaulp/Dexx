@@ -27,19 +27,19 @@ class CardsController < ApplicationController
   def create
     respond_to do |format|
       if !@template
-        format.json { render json: {status:'Error', details:"i18> Template '#{params[:template_name]}'' not found."} }
+        format.json { render json: json_error_response("card", "i18> Template '#{params[:template_name]}' not found.") }
         format.html {
-          flash.now[:error] = "i18> Template '#{params[:template_name]}'' not found."
+          flash.now[:error] = "i18> Template '#{params[:template_name]}' not found."
           render action: 'new' 
         }
       else
         @card = Card.new(card_create_params)
         if @card.save
           format.html { redirect_to @card, notice: 'i18> Card was successfully created.' }
-          format.json { render json: @card }
+          format.json { render json: json_ok_response("card", @card) }
         else
           format.html { render action: 'new' }
-          format.json { render json: {status:'Error', details:@card.errors}} #, status: :unprocessable_entity }
+          format.json { render json: json_error_response("card", @card.errors)}
         end
       end
     end
