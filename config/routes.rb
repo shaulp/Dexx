@@ -1,5 +1,10 @@
 Dexx::Application.routes.draw do
-  resources :cards
+  resources :cards do
+    collection do
+      put "set"
+      put "get"
+    end
+  end
 
   resources :templates do
     collection do

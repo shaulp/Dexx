@@ -25,6 +25,18 @@ def dexx_call(expect_pass=true)
 	end
 end
 
+def get_template(name)
+	resp=""
+	open("http://localhost:3000/templates.json?name=#{name}", 
+		:method => :get, 
+		"content-type" => 'application/json'
+		#:body => {"template" => {"name" => name}}.to_json
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end
+
 def create_template(name)
 	resp=""
 	open('http://localhost:3000/templates.json', 
@@ -61,20 +73,15 @@ def create_card(title, template_name)
 	JSON.parse(resp)
 end
 
-tname = "test-template-"+rand_string(5)
-dexx_call { create_template tname }
-tid = $resp["template"]["id"]
-#dexx_call (false) { add_prop_to_template tid, "dec", "DecimalProperty", "Max-length:3" }
-#dexx_call { add_prop_to_template tid, "dec", "DecimalProperty", "<33" }
-#dexx_call { add_prop_to_template tid, "str", "StringProperty", "Max-length:10" }
-#dexx_call { add_prop_to_template tid, "dat", "DateProperty", "" }
+def set_card_property(cid, prop, value)
+	resp=""
+	open('http://localhost:3000/cards/set.json', 
+		:method => :post, 
+		"content-type" => 'application/json',
+		:body => {id:id, property:{name:name, value:value}}.to_json
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end
 
-cname = "test-card-"+rand_string(5)
-dexx_call { create_card cname, tname }
-
-dexx_end
-
-#create_card "test-card-1", "test-template-1"
-#model={"a" => 1, "b" => {"c" => 3}}
-#h= {"a" => 3, "b" => {"c" => 55}}
-#puts clean_params model, h

@@ -1,5 +1,11 @@
 class CardsController < ApplicationController
-  before_action :set_card, only: [:show, :edit, :update, :destroy]
+
+  SetPropertyParams = {
+    "card" => {"id" => ""},
+    "property" => {"name" => "", "value" => ""}
+  }
+
+  before_action :set_card, only: [:show, :edit, :update, :destroy, :set, :get]
   before_action :set_template, only:[:create]
 
   # GET /cards
@@ -20,6 +26,20 @@ class CardsController < ApplicationController
 
   # GET /cards/1/edit
   def edit
+  end
+
+  def set
+    actual_params = clean_params SetPropertyParams, params
+    @card.set actual_params["property"]["name"], actual_params["property"]["value"]
+    respond_to do |format|
+      if @card.errors.empty? && @card.save
+        format.html { redirect_to @card, notice: 'i18> Card was successfully created.' }
+        format.json { render json: json_ok_response("card", @card) }
+      else
+        format.html { redirect_to @card, notice: @card.errors }
+        format.json { render json: json_error_response("card", @card.errors)}
+      end
+    end
   end
 
   # POST /cards

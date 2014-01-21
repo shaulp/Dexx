@@ -10,12 +10,44 @@ class TemplatesController < ApplicationController
   # GET /templates
   # GET /templates.json
   def index
-    @templates = Template.all
+    if params[:name]
+      @template = Template.find_by_name(params[:name])
+      respond_to do |format|
+        if @template
+          format.html { redirect_to @templates }
+          format.json { render json: json_ok_response("template", @template)}
+        else
+          format.html { render action: 'new' }
+          format.json { render json: json_error_response("template", "i18> No template found") }
+        end
+      end
+    else
+      @templates = Template.all
+      respond_to do |format|
+        format.html { redirect_to @templates }
+        format.json {
+          if !@templates.empty?
+            render json: json_ok_response("template", @templates)
+          else
+            render json: json_error_response("template", "i18> No template found")
+          end 
+        }
+      end
+    end
   end
 
   # GET /templates/1
   # GET /templates/1.json
   def show
+    respond_to do |format|
+      if @template
+        format.html { redirect_to @template }
+        format.json { render json: json_ok_response("template", @template) }
+      else
+        format.html { redirect_to @template }
+        format.json { render json: json_error_response("template", "i18> Template not found") }
+      end
+    end
   end
 
   # GET /templates/new
@@ -101,7 +133,12 @@ class TemplatesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_template
-      @template = Template.find(params[:id]||params[:template_id])
+      tid = Integer(params[:id]) rescue nil
+      if tid
+        @template = Template.find_by_id(tid)
+      else
+        @template = Template.find_by_name(params[:id])
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
