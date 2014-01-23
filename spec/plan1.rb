@@ -10,12 +10,17 @@ require_relative 'API/basic'
 #dexx_call { add_prop_to_template tid, "dat", "DateProperty", "" }
 
 tname = "test-template-GKOLFO"
-dexx_call { get_template tname}
-tid = $resp["template"]["id"]
-#dexx_call { add_prop_to_template tid, "str", "StringProperty", "Max-length:10" }
-cname = "test-card-"+rand_string(5)
-dexx_call { create_card cname, tname }
-cid = $resp["card"]["id"]
-dexx_call { set_card_property cid, "str", "abcd"}
+#dexx_call { get_template tname}
+#tid = $resp["template"]["id"]
+#dexx_call { add_prop_to_template tid, "dat", "DateProperty", "" }
+
+#cname = "test-card-"+rand_string(5)
+#dexx_call { create_card cname, tname }
+#cid = $resp["card"]["id"]
+#dexx_call { set_card_property 22, "dat", "24-Jan-2014"}
+#dexx_call(false) { set_card_property 22, "dat", "ShalomRavShuvech"}
+dexx_call(false) {set_card_property 22, "ll", "Sh"}
+puts $resp
+#dexx_call {set_card_property 22, "ll", "bb"}
 dexx_end
 

@@ -76,9 +76,9 @@ end
 def set_card_property(cid, prop, value)
 	resp=""
 	open('http://localhost:3000/cards/set.json', 
-		:method => :post, 
+		:method => :put, 
 		"content-type" => 'application/json',
-		:body => {id:id, property:{name:name, value:value}}.to_json
+		:body => {id:cid, property:{name:prop, value:value}}.to_json
 		) do |f|
 		f.each_line {|l| resp << l}
 	end

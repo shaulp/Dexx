@@ -92,7 +92,7 @@ module Properties
 		def convert(value)
 			if value.is_a? DateTime
 				value
-			elsif value is_a? String
+			elsif value.is_a? String
 				DateTime.parse value rescue nil
 			else
 				nil

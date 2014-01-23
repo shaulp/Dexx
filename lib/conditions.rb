@@ -126,7 +126,11 @@ module Conditions
 			@list.delete ""
 		end
 		def check(v)
-			@list.member?(v.value)
+			if @list.member?(v.value)
+				return true
+			else
+				v.add_error "i18> '#{v.value}' is not an allowed value"
+			end
 		end
 	end
 
@@ -146,6 +150,7 @@ module Conditions
 		def check(v)
 			cards = Lookups.card_with_properties @template, @property => v.value
 			!cards.empty?
+			############ v.add_error
 		end
 	end
 
