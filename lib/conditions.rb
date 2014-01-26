@@ -130,13 +130,19 @@ module Conditions
 				return true
 			else
 				v.add_error "i18> '#{v.value}' is not an allowed value"
+				return false
 			end
 		end
 	end
 
 	class Link < Condition
 		def check(v)
-			Card.exists?(v.value)
+			if Card.exists?(v.value)
+				return true
+			else
+				v.add_error "i18> Linked card id=#{v.value} does not exist"
+				return false
+			end
 		end
 	end
 
@@ -149,8 +155,12 @@ module Conditions
 		end
 		def check(v)
 			cards = Lookups.card_with_properties @template, @property => v.value
-			!cards.empty?
-			############ v.add_error
+			if cards.empty
+				v.add_error "i18> Referenced cards not found for #{@template.name}.#{@property.name}=#{v.value}"
+				return false
+			else
+				return true
+			end
 		end
 	end
 

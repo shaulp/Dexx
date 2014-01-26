@@ -1,5 +1,6 @@
 require 'rest-open-uri'
 require 'json'
+require 'sourcify'
 
 def rand_string(len)
 	(0..len).map {(65+rand(26)).chr}.join
@@ -9,18 +10,32 @@ def dexx_end
 	puts "end"
 end
 
+def assert(&blk)
+	puts blk.to_source(strip_enclosure:true) if $verbose
+	dexx_call &blk
+end
+
+def unsert(&blk)
+	puts blk.to_source(strip_enclosure:true) if $verbose
+	dexx_call false, &blk
+end
+def test (&blk)
+	puts blk.to_source
+	blk.call
+end
+
 def dexx_call(expect_pass=true)
 	return unless block_given?
 	$resp = yield
 	if $resp["status"]=="ok"
-		print "." if expect_pass
-		print "X" if !expect_pass
+		print "." if expect_pass && !$verbose
+		print "=X=" if !expect_pass
 	else
 		if expect_pass
 			puts "\n#{$resp}\nExecution stopped!"
 			exit
 		else
-			print "."
+			print "." unless $verbose
 		end
 	end
 end
