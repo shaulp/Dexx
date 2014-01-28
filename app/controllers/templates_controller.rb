@@ -123,10 +123,17 @@ class TemplatesController < ApplicationController
   # DELETE /templates/1
   # DELETE /templates/1.json
   def destroy
-    @template.destroy
-    respond_to do |format|
-      format.html { redirect_to templates_url }
-      format.json { head :no_content }
+    if @template
+      @template.destroy
+      respond_to do |format|
+        format.html { redirect_to templates_url }
+        format.json { render json: json_ok_response("template", @template) }
+      end
+    else
+      respond_to do |format|
+        format.html { render action: 'edit' }
+        format.json { render json: json_error_response("template", "i18> Not found") }
+      end
     end
   end
 

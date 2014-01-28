@@ -146,7 +146,7 @@ module Conditions
 		end
 	end
 
-	class Referrence <Condition
+	class Referrence < Condition
 		def initialize(params)
 			@template = Template.find(name:params[0])
 			raise TypeError unless @template

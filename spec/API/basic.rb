@@ -1,6 +1,6 @@
 require 'rest-open-uri'
 require 'json'
-require 'sourcify'
+#require 'sourcify'
 
 def rand_string(len)
 	(0..len).map {(65+rand(26)).chr}.join
@@ -11,12 +11,12 @@ def dexx_end
 end
 
 def assert(&blk)
-	puts blk.to_source(strip_enclosure:true) if $verbose
+	#puts blk.to_source(strip_enclosure:true) if $verbose
 	dexx_call &blk
 end
 
 def unsert(&blk)
-	puts blk.to_source(strip_enclosure:true) if $verbose
+	#puts blk.to_source(strip_enclosure:true) if $verbose
 	dexx_call false, &blk
 end
 def test (&blk)
@@ -28,19 +28,26 @@ def dexx_call(expect_pass=true)
 	return unless block_given?
 	$resp = yield
 	if $resp["status"]=="ok"
-		print "." if expect_pass && !$verbose
-		print "=X=" if !expect_pass
+		if $verbose
+			puts "..OK" if expect_pass
+			puts "..OK(test failed)" if !expect_pass
+		else
+			print "." if expect_pass
+			print "=X=" if !expect_pass
+		end
 	else
 		if expect_pass
 			puts "\n#{$resp}\nExecution stopped!"
 			exit
 		else
 			print "." unless $verbose
+			puts "..#{$resp} (test passed)" if $verbose
 		end
 	end
 end
 
 def get_template(name)
+	print "get_template '#{name}'" if $verbose
 	resp=""
 	open("http://localhost:3000/templates.json?name=#{name}", 
 		:method => :get, 
@@ -53,6 +60,7 @@ def get_template(name)
 end
 
 def create_template(name)
+	print "create_template '#{name}'" if $verbose
 	resp=""
 	open('http://localhost:3000/templates.json', 
 		:method => :post, 
@@ -64,7 +72,21 @@ def create_template(name)
 	JSON.parse(resp)
 end
 
+def delete_template(name)
+	print "delete_template '#{name}'" if $verbose
+	resp=""
+	open("http://localhost:3000/templates/#{name}.json",
+			:method => :delete, 
+			"content-type" => 'application/json',
+			:body => {name:name}.to_json
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end
+
 def add_prop_to_template(id, name, type, validation)
+	print "add_prop_to_template (#{id}): name: '#{name}' type: '#{type}' validation: '#{validation}'" if $verbose
 	resp=""
 	open("http://localhost:3000/templates/add_property.json", 
 		:method => :put, 
@@ -77,6 +99,7 @@ def add_prop_to_template(id, name, type, validation)
 end
 
 def create_card(title, template_name)
+	print "create_card '#{title}' on template '#{template_name}'" if $verbose
 	resp=""
 	open('http://localhost:3000/cards.json', 
 		:method => :post, 
@@ -89,6 +112,7 @@ def create_card(title, template_name)
 end
 
 def set_card_property(cid, prop, value)
+	print "set_card_property (#{cid}): prop: '#{prop}' value: '#{value}'" if $verbose
 	resp=""
 	open('http://localhost:3000/cards/set.json', 
 		:method => :put, 

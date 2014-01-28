@@ -12,15 +12,14 @@ require_relative 'API/basic'
 $verbose=true
 tname = "test-template-GKOLFO"
 assert { get_template tname}
-tname = "qdwqfqwf"
-unsert { get_template "fasdf" }
-#tid = $resp["template"]["id"]
+#unsert { get_template "fasdf" }
+tid = $resp["template"]["id"]
 #dexx_call { add_prop_to_template tid, "dat", "DateProperty", "" }
 
-#cname = "test-card-"+rand_string(5)
-#dexx_call { create_card cname, tname }
-#cid = $resp["card"]["id"]
-#dexx_call { set_card_property 22, "dat", "24-Jan-2014"}
+cname = "test-card-"+rand_string(5)
+assert { create_card cname, tname }
+cid = $resp["card"]["id"]
+assert { set_card_property 22, "dat", "24-Jan-2014"}
 #dexx_call(false) { set_card_property 22, "dat", "ShalomRavShuvech"}
 #dexx_call(false) {set_card_property 22, "ll", "Sh"}
 #puts $resp
