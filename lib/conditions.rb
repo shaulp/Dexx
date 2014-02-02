@@ -9,12 +9,12 @@ module Conditions
 			new_cond = nil
 			Condition_clauses.each do |reg,cond_class|
 				if match = reg.match(text)
-					new_cond = cond_class.new(match[1..-1]) rescue nil
+					new_cond = cond_class.new(match[1..-1], property) rescue nil
 					break
 				end
 			end
 			if new_cond
-				if property.applicable_condition? (new_cond) 
+				if property.class.applicable_condition? (new_cond) 
 					conditions << new_cond
 				end
 			else
@@ -27,8 +27,7 @@ module Conditions
 
 	class Condition
 
-		def initialize(params)
-			# @condition = condition
+		def initialize(params, prop)
 		end
 		def check(v)
 			return true
@@ -51,7 +50,7 @@ module Conditions
 	end
 
 	class LengthAtLeast < Condition
-		def initialize(params)
+		def initialize(params, prop)
 			@min_length = params[0].to_i
 		end
 		def check(v)
@@ -64,7 +63,7 @@ module Conditions
 	end
 
 	class LengthAtMost < Condition
-		def initialize(params)
+		def initialize(params, prop)
 			@max_length = params[0].to_i
 		end
 		def check(v)
@@ -77,8 +76,10 @@ module Conditions
 	end
 
 	class ScalarCheck < Condition
-		def initialize(params)
-			@scalar = params[0]
+		def initialize(params, prop)
+			@scalar = prop.convert(params[0])
+			raise ArgumentError unless @scalar
+			
 			@operator = params[1]
 			@message = params[2]
 		end
@@ -90,28 +91,28 @@ module Conditions
 	end
 
 	class GreaterThan < ScalarCheck
-		def initialize(params)
+		def initialize(params, prop)
 			params.push '>', "i18> The value must be greater than #{params[0]}."
-			super params
+			super params, prop
 		end
 	end
 
 	class LessThan < ScalarCheck
-		def initialize(params)
+		def initialize(params, prop)
 			params.push '<', "i18> The value must be less than #{params[0]}."
 			super params
 		end
 	end
 
 	class GreaterOrEqual < ScalarCheck
-		def initialize(params)
+		def initialize(params, prop)
 			params.push '>=', "i18> The value must be greater than or equal to #{params[0]}."
 			super params
 		end
 	end
 
 	class LessOrEqual < ScalarCheck
-		def initialize(params)
+		def initialize(params, prop)
 			params.push '<=', "i18> The value must be less than or equal to #{params[0]}."
 			super params
 		end
@@ -121,7 +122,7 @@ module Conditions
 	end
 
 	class List < Condition
-		def initialize(params)
+		def initialize(params, prop)
 			@list = params[0].split(/[<>]/)
 			@list.delete ""
 		end
@@ -147,7 +148,7 @@ module Conditions
 	end
 
 	class Referrence < Condition
-		def initialize(params)
+		def initialize(params, prop)
 			@template = Template.find(name:params[0])
 			raise TypeError unless @template
 			@property = template.get_property(params[1])
@@ -169,10 +170,10 @@ module Conditions
 		/^Unique$/i => Conditions::Unique,
 		/^Max-length:(\d+?)$/i => Conditions::LengthAtMost,
 		/^Min-length:(\d+?)$/i => Conditions::LengthAtLeast,
-		/^<(\d+?)$/i => Conditions::LessThan,
-		/^>(\d+?)$/i => Conditions::GreaterThan,
-		/^<=(\d+?)$/i => Conditions::LessOrEqual,
-		/^>=(\d+?)$/i => Conditions::GreaterOrEqual,
+		/^<(.+?)$/i => Conditions::LessThan,
+		/^>(.+?)$/i => Conditions::GreaterThan,
+		/^<=(.+?)$/i => Conditions::LessOrEqual,
+		/^>=(.+?)$/i => Conditions::GreaterOrEqual,
 		/^List:(<[\w _']+(><[\w _']+)*>)$/ => Conditions::List,
 		/^Link$/i => Conditions::Link,
 		/^Ref:{([\w]+)\/([\w]+)}$/ => Conditions::Referrence

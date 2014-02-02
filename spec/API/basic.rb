@@ -19,9 +19,9 @@ def unsert(&blk)
 	#puts blk.to_source(strip_enclosure:true) if $verbose
 	dexx_call false, &blk
 end
-def test (&blk)
-	puts blk.to_source
+def exec (&blk)
 	blk.call
+	puts "..Done"
 end
 
 def dexx_call(expect_pass=true)

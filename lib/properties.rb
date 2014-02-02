@@ -11,9 +11,18 @@ module Properties
 	class Property
 		attr_accessor :name, :validation, :errors
 
+		ApplicableConditions = []
+		def self.applicable_condition?(c)
+			if ApplicableConditions.member? c.class
+				return true
+			else
+				add_error "i18> #{c.class} cannot be applied to a #{self.class}"
+				return false
+			end
+		end
+
 		def initialize(prop_def)
-			@applicable_conditions ||= []
-			@name=prop_def[:name]
+			@name = prop_def[:name]
 			@validation = Validations::Validation.new prop_def[:validation], self
 		end
 		def type
@@ -21,14 +30,6 @@ module Properties
 		end
 		def convert(value)
 			value.to_s
-		end
-		def applicable_condition?(c)
-			if @applicable_conditions.member? c.class
-				return true
-			else
-				add_error "i18> #{c.class} cannot be applied to a #{self.class}"
-				return false
-			end
 		end
 		def validate(card, raw_value)
 			value = convert(raw_value)
@@ -51,24 +52,34 @@ module Properties
 	end
 
 	class StringProperty < Property
+		ApplicableConditions = [
+			Conditions::Mandatory, Conditions::Unique, 
+			Conditions::LengthAtLeast, Conditions::LengthAtMost, Conditions::GreaterThan, 
+			Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+			Conditions::Pattern, Conditions::List, Conditions::Referrence]
+
+		def self.applicable_condition?(c)
+			ApplicableConditions.member? c.class
+		end
+
 		def initialize(prop_def)
-			@applicable_conditions = [
-				Conditions::Mandatory, Conditions::Unique, 
-				Conditions::LengthAtLeast, Conditions::LengthAtMost, Conditions::GreaterThan, 
-				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
-				Conditions::Pattern, Conditions::List, Conditions::Referrence]
 			super prop_def
+		end
+		def is_condition
 		end
 	end
 
 	class DecimalProperty < Property
+		ApplicableConditions = [
+			Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
+			Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+			Conditions::List, Conditions::Referrence]
+
+		def self.applicable_condition?(c)
+			return false unless ApplicableConditions.member? c.class	
+		end
 
 		def initialize(prop_def)
-			@applicable_conditions = [
-				Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
-				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
-				Conditions::List, Conditions::Referrence]
-
 			@frac_digits = prop_def[:frac_digits]||2
 			super prop_def
 		end
@@ -81,11 +92,14 @@ module Properties
 	end
 
 	class DateProperty < Property
+		ApplicableConditions = [
+			Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
+			Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
+			Conditions::List, Conditions::Referrence]
+		def self.applicable_condition?(c)
+			return false unless ApplicableConditions.member? c.class	
+		end
 		def initialize(prop_def)
-			@applicable_conditions = [
-				Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
-				Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
-				Conditions::List, Conditions::Referrence]
 			super prop_def
 		end
 

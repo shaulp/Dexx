@@ -9,6 +9,7 @@ class Template < ActiveRecord::Base
 	after_initialize :init_properties
 	before_save :pack_properties
 	after_find :unpack_properties
+	before_destroy :verify_no_cards_exists
 
 	def init_properties
 		@properties ||= []
@@ -22,6 +23,11 @@ class Template < ActiveRecord::Base
 		props = JSON.parse self.packed_properties, symbolize_names:true
 		props.each {|p| add_property p}
 	end
+
+	def verify_no_cards_exists
+		cards.empty?
+	end
+
 	def add_property(prop_def)
 		prop_type = prop_def[:type].sub "Properties::", ""
 		@properties.each do |p|

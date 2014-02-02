@@ -1,3 +1,4 @@
+delete template that has cards - return proper error
 decimal property - set frac
 string property - digits only
 
