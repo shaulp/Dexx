@@ -25,6 +25,20 @@ class ApplicationController < ActionController::Base
     tmp_params
   end
 
+  def respond_ok(type, object)
+    respond_to do |format|
+      format.html { render object}
+      format.json { render json: json_ok_response(type, object) }
+    end
+  end
+
+  def respond_err(type, object, msg)
+    respond_to do |format|
+      format.html { render object}
+      format.json { render json: json_error_response(type, msg) }
+    end
+  end
+
   def json_error_response(object_type ,messages)
     {"status" => "error", object_type.to_s => messages}.to_json
   end

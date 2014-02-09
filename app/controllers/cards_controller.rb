@@ -11,7 +11,16 @@ class CardsController < ApplicationController
   # GET /cards
   # GET /cards.json
   def index
-    @cards = Card.all
+    if params['template'] && !params['template'].empty? 
+      @cards = Card.from_template params['template']
+      if @cards.empty?
+        respond_err "card", Card.new, "i18> No cards found"
+      else
+        respond_ok "card", @cards
+      end
+    else
+      respond_err "card", Card.new, "i18> Must specify template"
+    end
   end
 
   # GET /cards/1
@@ -31,36 +40,24 @@ class CardsController < ApplicationController
   def set
     actual_params = clean_params SetPropertyParams, params
     @card.set actual_params["property"]["name"], actual_params["property"]["value"]
-    respond_to do |format|
-      if @card.errors.empty? && @card.save
-        format.html { redirect_to @card, notice: 'i18> Card was successfully created.' }
-        format.json { render json: json_ok_response("card", @card) }
-      else
-        format.html { redirect_to @card, notice: @card.errors }
-        format.json { render json: json_error_response("card", @card.errors)}
-      end
+    if @card.errors.empty? && @card.save
+      respond_ok "card", @card
+    else
+      respond_err "card", @card, @card.errors
     end
   end
 
   # POST /cards
   # POST /cards.json
   def create
-    respond_to do |format|
-      if !@template
-        format.json { render json: json_error_response("card", "i18> Template '#{params[:template_name]}' not found.") }
-        format.html {
-          flash.now[:error] = "i18> Template '#{params[:template_name]}' not found."
-          render action: 'new' 
-        }
+    if !@template
+      respond_err "card", Card.new, "i18> Template '#{params[:template_name]}' not found."
+    else
+      @card = Card.new(card_create_params)
+      if @card.save
+        respond_ok "card", @card
       else
-        @card = Card.new(card_create_params)
-        if @card.save
-          format.html { redirect_to @card, notice: 'i18> Card was successfully created.' }
-          format.json { render json: json_ok_response("card", @card) }
-        else
-          format.html { render action: 'new' }
-          format.json { render json: json_error_response("card", @card.errors)}
-        end
+        respond_err "card", @card, @card.errors
       end
     end
   end
@@ -68,24 +65,24 @@ class CardsController < ApplicationController
   # PATCH/PUT /cards/1
   # PATCH/PUT /cards/1.json
   def update
-    respond_to do |format|
-      if @card.update(card_update_params)
-        format.html { redirect_to @card, notice: 'Card was successfully updated.' }
-        format.json { render json: @card.properties }
-      else
-        format.html { render action: 'edit' }
-        format.json { render json: @card.errors, status: :unprocessable_entity }
-      end
+    if @card.update(card_update_params)
+      respond_ok "card", @card
+    else
+      respond_err "card", @card, @card.errors
     end
   end
 
   # DELETE /cards/1
   # DELETE /cards/1.json
   def destroy
-    @card.destroy
-    respond_to do |format|
-      format.html { redirect_to cards_url }
-      format.json { head :no_content }
+    if @card
+      if @card.destroy
+        respond_ok "card", @card
+      else
+        respond_err "card", @card, @card.errors
+      end
+    else
+      respond_err "card", nil, "i18> Not found"
     end
   end
 

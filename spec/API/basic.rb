@@ -19,9 +19,14 @@ def unsert(&blk)
 	#puts blk.to_source(strip_enclosure:true) if $verbose
 	dexx_call false, &blk
 end
+
 def exec (&blk)
-	blk.call
-	puts "..Done"
+	$resp = blk.call
+	if $verbose
+		puts $resp
+	else
+		puts "..Done"
+	end
 end
 
 def dexx_call(expect_pass=true)
@@ -52,7 +57,6 @@ def get_template(name)
 	open("http://localhost:3000/templates.json?name=#{name}", 
 		:method => :get, 
 		"content-type" => 'application/json'
-		#:body => {"template" => {"name" => name}}.to_json
 		) do |f|
 		f.each_line {|l| resp << l}
 	end
@@ -118,6 +122,35 @@ def set_card_property(cid, prop, value)
 		:method => :put, 
 		"content-type" => 'application/json',
 		:body => {id:cid, property:{name:prop, value:value}}.to_json
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end
+
+def get_card(template_name, title=nil)
+	if $verbose
+		print "get_card for template (#{template_name}) " 
+		print "with title (#{title}) " if title
+	end
+	resp=""
+	params = "?template=#{template_name}"
+	params << "&title=#{title}" if title && title.length >0
+	open('http://localhost:3000/cards.json'+params, 
+		:method => :get, 
+		"content-type" => 'application/json',
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end
+
+def delete_card(cid)
+	print "delete_card '#{cid}'" if $verbose
+	resp=""
+	open("http://localhost:3000/cards/#{cid}.json",
+			:method => :delete, 
+			"content-type" => 'application/json',
 		) do |f|
 		f.each_line {|l| resp << l}
 	end

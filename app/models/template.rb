@@ -25,7 +25,12 @@ class Template < ActiveRecord::Base
 	end
 
 	def verify_no_cards_exists
-		cards.empty?
+		if cards.empty?
+			return true
+		else
+			errors.add :base, "i18> Cannot delete template because it has cards"
+			return false
+		end
 	end
 
 	def add_property(prop_def)

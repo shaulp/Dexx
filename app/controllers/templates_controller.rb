@@ -12,26 +12,17 @@ class TemplatesController < ApplicationController
   def index
     if params[:name]
       @template = Template.find_by_name(params[:name])
-      respond_to do |format|
-        if @template
-          format.html { redirect_to @templates }
-          format.json { render json: json_ok_response("template", @template)}
-        else
-          format.html { render action: 'new' }
-          format.json { render json: json_error_response("template", "i18> No template found") }
-        end
+      if @template
+        respond_ok "template", @template
+      else
+        respond_err "template", Template.new, "i18> No template found"
       end
     else
       @templates = Template.all
-      respond_to do |format|
-        format.html { redirect_to @templates }
-        format.json {
-          if !@templates.empty?
-            render json: json_ok_response("template", @templates)
-          else
-            render json: json_error_response("template", "i18> No template found")
-          end 
-        }
+      if !@templates.empty?
+        respond_ok "template", @templates
+      else
+        respond_err "template", @templates, "i18> No template found"
       end
     end
   end
@@ -66,10 +57,7 @@ class TemplatesController < ApplicationController
       @template.add_property actual_params["property"]
       if @template.errors.empty?
         if @template.save
-          respond_to do |format|
-            format.html { redirect_to @template, notice: 'Template was successfully updated.' }
-            format.json { render json: json_ok_response("template", @template) }
-          end
+          respond_ok "template", @template
           return
         end
       end
@@ -77,10 +65,7 @@ class TemplatesController < ApplicationController
       msgs = "i18> template #{params[:id]} does not exist"
     end
     msgs = @template.errors.messages if @template
-    respond_to do |format|
-      format.html { render action: 'edit' }
-      format.json { render json: json_error_response("template", msgs) }
-    end
+    respond_err "template", @template, msgs
   end
 
   def update_property
@@ -94,15 +79,10 @@ class TemplatesController < ApplicationController
   # POST /templates.json
   def create
     @template = Template.new(template_params)
-
-    respond_to do |format|
-      if @template.save
-        format.html { redirect_to @template, notice: 'Template was successfully created.' }
-        format.json { render json: json_ok_response("template", @template) }
-      else
-        format.html { render action: 'new' }
-        format.json { render json: json_error_response("template", details:@template.errors)}
-      end
+    if @template.save
+      respond_ok "template", @template
+    else
+      respond_err "template", @template, @template.errors
     end
   end
 
@@ -124,16 +104,13 @@ class TemplatesController < ApplicationController
   # DELETE /templates/1.json
   def destroy
     if @template
-      @template.destroy
-      respond_to do |format|
-        format.html { redirect_to templates_url }
-        format.json { render json: json_ok_response("template", @template) }
+      if @template.destroy
+        respond_ok "template", @template
+      else
+        respond_err "template", @template, @template.errors
       end
     else
-      respond_to do |format|
-        format.html { render action: 'edit' }
-        format.json { render json: json_error_response("template", "i18> Not found") }
-      end
+      respond_err "template", nil, "i18> Not found"
     end
   end
 
