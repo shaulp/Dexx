@@ -3,6 +3,7 @@ Dexx::Application.routes.draw do
     collection do
       put "set"
       put "get"
+      post "query"
     end
   end
 

@@ -2,8 +2,10 @@ require_relative 'API/basic'
 
 $verbose = true
 
-exec { get_card "Customer"}
-#puts $resp
+exec { get_card "Customer", "lklk" }
+puts $resp
+exit
+
 if $resp["status"]=="ok"
 	$resp["card"].each do |c|
 		cid = c["id"]
@@ -25,4 +27,4 @@ cid = $resp["card"]["id"]
 assert { set_card_property cid, "Name", "Joe Shmoe" }
 unsert { set_card_property cid, "Name", "" }
 assert { set_card_property cid, "Country", "PRC" }
-assert { set_card_property cid, "Country", "unknown" }
+assert { set_card_property cid, "Country", "Israel" }

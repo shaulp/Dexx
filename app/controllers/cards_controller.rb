@@ -1,3 +1,4 @@
+require 'lookups'
 class CardsController < ApplicationController
 
   SetPropertyParams = {
@@ -11,15 +12,19 @@ class CardsController < ApplicationController
   # GET /cards
   # GET /cards.json
   def index
-    if params['template'] && !params['template'].empty? 
-      @cards = Card.from_template params['template']
-      if @cards.empty?
-        respond_err "card", Card.new, "i18> No cards found"
-      else
-        respond_ok "card", @cards
+    if params['template']
+      unless (template = Template.find_by_name params['template'])
+        respond_err "card", Card.new, "i18> Template not found"
+        return
       end
+    end
+
+    @cards = Card.with_template(template).with_title(params['title'])
+
+    if @cards.empty?
+      respond_err "card", Card.new, "i18> No cards found"
     else
-      respond_err "card", Card.new, "i18> Must specify template"
+      respond_ok "card", @cards
     end
   end
 

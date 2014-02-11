@@ -8,12 +8,12 @@ class Card < ActiveRecord::Base
 	before_save :pack_properties
 	after_find :unpack_properties
 
-	scope :from_template, lambda {|template_name|
-		template = Template.find_by_name(template_name)
-		if template
-			where(template_id: template.id)
-		else
-			where(template_id: -1)
+	scope :with_template, lambda {|template| where(template_id:template.id)}
+	scope :with_title, lambda { |title|
+		if title.nil? || title.empty?
+			all
+		else 
+			where(title:title)
 		end
 	}
 

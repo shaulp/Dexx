@@ -128,7 +128,7 @@ def set_card_property(cid, prop, value)
 	JSON.parse(resp)
 end
 
-def get_card(template_name, title=nil)
+def get_card(template_name, title = nil)
 	if $verbose
 		print "get_card for template (#{template_name}) " 
 		print "with title (#{title}) " if title
@@ -138,7 +138,7 @@ def get_card(template_name, title=nil)
 	params << "&title=#{title}" if title && title.length >0
 	open('http://localhost:3000/cards.json'+params, 
 		:method => :get, 
-		"content-type" => 'application/json',
+		"content-type" => 'application/json'
 		) do |f|
 		f.each_line {|l| resp << l}
 	end
@@ -150,7 +150,7 @@ def delete_card(cid)
 	resp=""
 	open("http://localhost:3000/cards/#{cid}.json",
 			:method => :delete, 
-			"content-type" => 'application/json',
+			"content-type" => 'application/json'
 		) do |f|
 		f.each_line {|l| resp << l}
 	end
