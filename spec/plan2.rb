@@ -2,7 +2,7 @@ require_relative 'API/basic'
 
 $verbose = true
 
-exec { get_card "Customer", "lklk" }
+exec { search_cards({"title" => "Joe"}) }
 puts $resp
 exit
 

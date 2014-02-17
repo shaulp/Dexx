@@ -134,7 +134,7 @@ def get_card(template_name, title = nil)
 		print "with title (#{title}) " if title
 	end
 	resp=""
-	params = "?template=#{template_name}"
+	params = "?template_name=#{template_name}"
 	params << "&title=#{title}" if title && title.length >0
 	open('http://localhost:3000/cards.json'+params, 
 		:method => :get, 
@@ -157,3 +157,15 @@ def delete_card(cid)
 	JSON.parse(resp)
 end
 
+def search_cards(props)
+	print "search cards by #{props}"
+	resp = ""
+	open("http://localhost:3000/cards/query.json",
+			:method => :post, 
+			"content-type" => 'application/json',
+			:body => {"properties" => props}.to_json
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end

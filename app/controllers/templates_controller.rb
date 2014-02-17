@@ -30,14 +30,10 @@ class TemplatesController < ApplicationController
   # GET /templates/1
   # GET /templates/1.json
   def show
-    respond_to do |format|
-      if @template
-        format.html { redirect_to @template }
-        format.json { render json: json_ok_response("template", @template) }
-      else
-        format.html { redirect_to @template }
-        format.json { render json: json_error_response("template", "i18> Template not found") }
-      end
+    if @template
+      respond_ok "template", @templates
+    else
+      respond_err "template", @templates, "i18> Template not found"
     end
   end
 

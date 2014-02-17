@@ -5,32 +5,55 @@ class CardsController < ApplicationController
     "card" => {"id" => ""},
     "property" => {"name" => "", "value" => ""}
   }
+  IndexParams = {"title" => ""}
+  QueryParams = {"properties" => ""}
+  CreateCardParams =  {"template_name" => "", "title" => "", "properties" => ""}
 
+  # before action : clean params by action
   before_action :set_card, only: [:show, :edit, :update, :destroy, :set, :get]
-  before_action :set_template, only:[:create]
+  before_action :set_template, only:[:create, :index]
 
   # GET /cards
   # GET /cards.json
   def index
-    if params['template']
-      unless (template = Template.find_by_name params['template'])
-        respond_err "card", Card.new, "i18> Template not found"
-        return
+    begin
+      actual_params = clean_params IndexParams, params
+      @cards = Lookups.cards_with_properties(actual_params)
+
+      if @cards.empty?
+        respond_err "card", Card.new, "i18> No cards found"
+      else
+        respond_ok "card", @cards
       end
+    rescue Exception => e
+      respond_err "card", Card.new, e.message
     end
+  end
 
-    @cards = Card.with_template(template).with_title(params['title'])
-
-    if @cards.empty?
-      respond_err "card", Card.new, "i18> No cards found"
-    else
-      respond_ok "card", @cards
-    end
+  # POST /cards/query
+  def query
+    #begin
+      actual_params = clean_params QueryParams, params
+      puts ">>>>> #{actual_params["properties"]}"
+      @cards = Lookups.cards_with_properties(actual_params["properties"])
+      if @cards.empty?
+        respond_err "card", Card.new, "i18> No cards found"
+      else
+        respond_ok "card", @cards
+      end
+    #rescue Exception => e
+    #  respond_err "card", Card.new, e.message
+    #end
   end
 
   # GET /cards/1
   # GET /cards/1.json
   def show
+    if @card
+      respond_ok "card", @card
+    else
+      respond_err "card", @card, "i18> Card not found"
+    end
   end
 
   # GET /cards/new
@@ -98,15 +121,15 @@ class CardsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def card_create_params
-      params.require(:card).permit(:template_id, :template_name, :title, :properties)
+      params.require(:card).permit(:template, :title, :properties)
     end
     def card_update_params
       params.require(:card).permit(:title, :properties)
     end
     def set_template
       if params[:template_name]
-        @template = Template.find_by_name(params[:template_name])
-        params[:card][:template_id] = @template.id if @template
+        template = Template.find_by_name(params[:template_name])
+        params[:template] = template if template
       end
     end
 end

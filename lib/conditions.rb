@@ -155,7 +155,7 @@ module Conditions
 			raise TypeError unless @property
 		end
 		def check(v)
-			cards = Lookups.card_with_properties @template, @property => v.value
+			cards = Lookups.card_with_properties 'template' => @template, @property => v.value
 			if cards.empty
 				v.add_error "i18> Referenced cards not found for #{@template.name}.#{@property.name}=#{v.value}"
 				return false
