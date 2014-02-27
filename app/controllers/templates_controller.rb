@@ -4,6 +4,10 @@ class TemplatesController < ApplicationController
     "template" => {"id" => ""},
     "property" => {"name" => "", "type" => "", "validation" => ""}
   }
+  RemovePropertyParams = {
+    "template" => {"id" => ""},
+    "property" => {"name" => "", "conf_key" => ""}
+  }
 
   before_action :set_template, only: [:show, :edit, :update, :destroy, :add_property, :update_property, :delete_property]
 
@@ -47,9 +51,9 @@ class TemplatesController < ApplicationController
   end
 
   def add_property
-    actual_params = clean_params AddPropertyParams, params
-    @template.errors.clear
     if @template
+      actual_params = clean_params AddPropertyParams, params
+      @template.errors.clear
       @template.add_property actual_params["property"]
       if @template.errors.empty?
         if @template.save
@@ -68,7 +72,22 @@ class TemplatesController < ApplicationController
     @template.update_property(template_property_params)
   end
   def delete_property
-    @template.delete_property(template_property_params)
+    actual_params = clean_params(RemovePropertyParams, params)
+    logger.error ">>>>> #{actual_params}"
+    if @template
+      @template.errors.clear
+      @template.delete_property(actual_params["property"]["name"])
+      if @template.errors.empty?
+        if @template.save
+          respond_ok "template", @template
+          return
+        end
+      end
+    else
+      msgs = "i18> template #{params[:id]} does not exist"
+    end
+    msgs = @template.errors.messages if @template
+    respond_err "template", @template, msgs
   end
 
   # POST /templates

@@ -102,6 +102,21 @@ def add_prop_to_template(id, name, type, validation)
 	JSON.parse(resp)
 end
 
+def remove_prop_from_template(id, name, conf_key=nil)
+	print "remove_prop_from_template (#{id}): name: '#{name}' key: '#{conf_key}'" if $verbose
+	resp=""
+	prop_params = {name:name}
+	prop_params[:conf_key] = conf_key if conf_key
+	open("http://localhost:3000/templates/delete_property.json", 
+		:method => :put, 
+		"content-type" => 'application/json',
+		:body => {id:id, property:prop_params}.to_json
+		) do |f|
+		f.each_line {|l| resp << l}
+	end
+	JSON.parse(resp)
+end
+
 def create_card(title, template_name)
 	print "create_card '#{title}' on template '#{template_name}'" if $verbose
 	resp=""

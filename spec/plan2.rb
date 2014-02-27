@@ -2,8 +2,14 @@ require_relative 'API/basic'
 
 $verbose = true
 
-exec { search_cards({"title" => "Joe"}) }
-puts $resp
+exec { delete_template "Dec" } 
+assert { create_template "Dec" }
+tid = $resp["template"]["id"]
+assert { add_prop_to_template tid, "CustomerID", "StringProperty", "Mandatory;Max-length:4" }
+assert { remove_prop_from_template tid, "CustomerID" }
+exit
+
+exec { search_cards({"title" => "Joe", "Country" => "Israel"}) }
 exit
 
 if $resp["status"]=="ok"

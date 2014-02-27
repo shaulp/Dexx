@@ -9,7 +9,7 @@ module Properties
 	end
 
 	class Property
-		attr_accessor :name, :validation, :errors
+		attr_accessor :name, :validation, :errors, :delete_key
 
 		ApplicableConditions = []
 		def self.applicable_condition?(c)
@@ -70,6 +70,7 @@ module Properties
 	end
 
 	class DecimalProperty < Property
+		attr_accessor :frac_digits
 		ApplicableConditions = [
 			Conditions::Mandatory, Conditions::Unique, Conditions::GreaterThan, 
 			Conditions::LessThan, Conditions::GreaterOrEqual, Conditions::LessOrEqual, 
@@ -80,13 +81,13 @@ module Properties
 		end
 
 		def initialize(prop_def)
-			@frac_digits = prop_def[:frac_digits]||2
+			frac_digits = prop_def[:frac_digits]||2
 			super prop_def
 		end
 		def convert(value)
 			f = Float(value) rescue nil
 			if f
-				f.round(@frac_digits)
+				f.round(frac_digits)
 			end
 		end
 	end

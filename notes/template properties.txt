@@ -1,4 +1,6 @@
-decimal property - set frac
+JSON field in postgres
+
+
 string property - digits only
 
 valid property name text, numbers, _, '
@@ -9,12 +11,6 @@ updating templates
 	- if type, check conversion, convert and re-validate
 	- if validation, re-validate
 - revalidation: flag cards that do not comply
-Deleting a template
-
-test json API
-////////////////////////////////
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X PUT -d "{\"title\":\"abc"\"}" http://localhost:3000/cards/7.json
-////////////////////////////////
 
 
 Creating cards

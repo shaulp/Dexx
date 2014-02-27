@@ -52,9 +52,32 @@ class Template < ActiveRecord::Base
 			errors.add :base, "i18> #{prop_def[:type]} is not a valid property type."
 		end
 	end
-	def remove_property(name)
+	
+	def delete_property(name, conf_key=nil)
+		prop = get_property(name)
+		unless prop
+			errors.add :base, "i18> Property #{name} does not exist."
+			return
+		end
+		logger.error ">>>>> In delete and has property"
+		unless cards.empty?
+			if conf_key
+				if prop.delete_key != conf_key
+					errors.add :base, "i18> Cannot delete property #{name}. Confirmation key mismatched."
+					return
+				end
+			else
+				key = SecureRandom.uuid
+				prop.delete_key = key
+				save
+				errors.add :base, "i18> Try again and supply key <#{key}>"
+				return
+			end
+		end
+		logger.error ">>>>> deleting property!"
 		@properties.delete_if {|p| p.name==name}
 	end
+
 	def validate(card, prop_name, value)
 		prop = get_property(prop_name)
 		if prop.nil?

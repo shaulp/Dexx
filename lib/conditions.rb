@@ -75,6 +75,12 @@ module Conditions
 		end
 	end
 
+	class DecimalFraction < Condition
+		def initialize(params, prop)
+			prop.frac_digits = params[0]
+		end
+	end
+
 	class ScalarCheck < Condition
 		def initialize(params, prop)
 			@scalar = prop.convert(params[0])
@@ -170,6 +176,7 @@ module Conditions
 		/^Unique$/i => Conditions::Unique,
 		/^Max-length:(\d+?)$/i => Conditions::LengthAtMost,
 		/^Min-length:(\d+?)$/i => Conditions::LengthAtLeast,
+		/^Dec:(\d+?)$/i => Conditions::DecimalFraction,
 		/^<(.+?)$/i => Conditions::LessThan,
 		/^>(.+?)$/i => Conditions::GreaterThan,
 		/^<=(.+?)$/i => Conditions::LessOrEqual,

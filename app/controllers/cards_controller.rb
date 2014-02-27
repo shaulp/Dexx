@@ -32,7 +32,7 @@ class CardsController < ApplicationController
 
   # POST /cards/query
   def query
-    #begin
+    begin
       actual_params = clean_params QueryParams, params
       puts ">>>>> #{actual_params["properties"]}"
       @cards = Lookups.cards_with_properties(actual_params["properties"])
@@ -41,9 +41,9 @@ class CardsController < ApplicationController
       else
         respond_ok "card", @cards
       end
-    #rescue Exception => e
-    #  respond_err "card", Card.new, e.message
-    #end
+    rescue Exception => e
+      respond_err "card", Card.new, e.message
+    end
   end
 
   # GET /cards/1
