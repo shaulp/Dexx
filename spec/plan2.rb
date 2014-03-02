@@ -6,12 +6,14 @@ exec { delete_template "Dec" }
 assert { create_template "Dec" }
 tid = $resp["template"]["id"]
 assert { add_prop_to_template tid, "CustomerID", "StringProperty", "Mandatory;Max-length:4" }
+assert { create_card "Joe", "Dec" }
 assert { remove_prop_from_template tid, "CustomerID" }
 exit
 
-exec { search_cards({"title" => "Joe", "Country" => "Israel"}) }
-exit
+#exec { search_cards({"title" => "Joe", "Country" => "Israel"}) }
+#exit
 
+exec { search_cards({"title" => "Joe"}) }
 if $resp["status"]=="ok"
 	$resp["card"].each do |c|
 		cid = c["id"]

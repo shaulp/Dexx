@@ -24,6 +24,7 @@ module Properties
 		def initialize(prop_def)
 			@name = prop_def[:name]
 			@validation = Validations::Validation.new prop_def[:validation], self
+			@delete_key = prop_def[:delete_key]
 		end
 		def type
 			self.class.to_s
@@ -41,7 +42,7 @@ module Properties
 			end
 		end
 		def pack
-			{type:type, name:name, validation:validation.pack}
+			{type:type, name:name, validation:validation.pack, delete_key:delete_key}
 		end
 		def add_error(msg)
 			(@errors ||= []) << msg

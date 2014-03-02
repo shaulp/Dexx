@@ -7,7 +7,7 @@ class CardsController < ApplicationController
   }
   IndexParams = {"title" => ""}
   QueryParams = {"properties" => ""}
-  CreateCardParams =  {"template_name" => "", "title" => "", "properties" => ""}
+  CreateCardParams =  {"template" => "", "title" => "", "properties" => ""}
 
   # before action : clean params by action
   before_action :set_card, only: [:show, :edit, :update, :destroy, :set, :get]
@@ -78,10 +78,12 @@ class CardsController < ApplicationController
   # POST /cards
   # POST /cards.json
   def create
-    if !@template
+    if !params[:template]
       respond_err "card", Card.new, "i18> Template '#{params[:template_name]}' not found."
     else
-      @card = Card.new(card_create_params)
+      actual_params = clean_params CreateCardParams, params
+      logger.error ">>>>> #{actual_params}"
+      @card = Card.new(actual_params)
       if @card.save
         respond_ok "card", @card
       else
