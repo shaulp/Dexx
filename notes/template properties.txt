@@ -1,12 +1,9 @@
-JSON field in postgres
-
 
 string property - digits only
 
 valid property name text, numbers, _, '
 
 updating templates
-- deleting a property: including existing cards y/n
 - updating a property:
 	- if type, check conversion, convert and re-validate
 	- if validation, re-validate

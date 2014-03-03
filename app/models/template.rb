@@ -53,14 +53,15 @@ class Template < ActiveRecord::Base
 		end
 	end
 	
-	def delete_property(name, conf_key=nil)
+	def delete_property(prop_params)
+		name = prop_params["name"]
 		prop = get_property(name)
 		unless prop
 			errors.add :base, "i18> Property #{name} does not exist."
 			return
 		end
-		logger.error ">>>>> In delete and has property"
 		unless cards.empty?
+			conf_key = prop_params["conf_key"]
 			if conf_key
 				if prop.delete_key != conf_key
 					errors.add :base, "i18> Cannot delete property #{name}. Confirmation key mismatched."
@@ -70,11 +71,11 @@ class Template < ActiveRecord::Base
 				key = SecureRandom.uuid
 				prop.delete_key = key
 				save
-				errors.add :base, "i18> Try again and supply key <#{key}>"
+				errors.add :base, "i18> Try again and supply key"
+				errors.add :key, key
 				return
 			end
 		end
-		logger.error ">>>>> deleting property!"
 		@properties.delete_if {|p| p.name==name}
 	end
 

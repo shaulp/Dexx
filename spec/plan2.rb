@@ -2,12 +2,26 @@ require_relative 'API/basic'
 
 $verbose = true
 
+exec { search_cards({"title" => "Joe"}) }
+if $resp["status"]=="ok"
+	$resp["card"].each do |c|
+		cid = c["id"]
+		assert { delete_card cid }
+	end
+end
+
 exec { delete_template "Dec" } 
 assert { create_template "Dec" }
 tid = $resp["template"]["id"]
 assert { add_prop_to_template tid, "CustomerID", "StringProperty", "Mandatory;Max-length:4" }
 assert { create_card "Joe", "Dec" }
-assert { remove_prop_from_template tid, "CustomerID" }
+unsert { remove_prop_from_template tid, "CustomerID" }
+if $resp["status"]=="error"
+	if $resp["template"]["key"]
+		key = $resp["template"]["key"][0]
+		assert { remove_prop_from_template tid, "CustomerID", key}
+	end
+end
 exit
 
 #exec { search_cards({"title" => "Joe", "Country" => "Israel"}) }

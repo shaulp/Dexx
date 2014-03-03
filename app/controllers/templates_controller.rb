@@ -76,7 +76,7 @@ class TemplatesController < ApplicationController
     logger.error ">>>>> #{actual_params}"
     if @template
       @template.errors.clear
-      @template.delete_property(actual_params["property"]["name"])
+      @template.delete_property(actual_params["property"])
       if @template.errors.empty?
         if @template.save
           respond_ok "template", @template
