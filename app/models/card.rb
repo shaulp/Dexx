@@ -45,7 +45,7 @@ class Card < ActiveRecord::Base
 		if self.template && (p=self.template.get_property name )
 			p.convert @properties[name]
 		else
-			add_error "i18> No such property #{name}"
+			add_error "i18> No such property: #{name}"
 		end
 	end
 	def add_property_error(property, message)
