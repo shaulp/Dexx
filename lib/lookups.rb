@@ -18,9 +18,11 @@ module Lookups
 		cards = Card.find_by_template_id(template.id)
 		cards.each do |card|
 			value = card.get(property.name)
-			unless property.validate (card, value)
-				card.update_attribute(valid:false)
-				return
+			if value
+				unless property.validate(card, value)
+					card.update_attribute(is_valid:false)
+					return
+				end
 			end
 		end
 	end

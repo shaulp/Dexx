@@ -49,11 +49,7 @@ class CardsController < ApplicationController
   # GET /cards/1
   # GET /cards/1.json
   def show
-    if @card
-      respond_ok "card", @card
-    else
-      respond_err "card", @card, "i18> Card not found"
-    end
+    respond_ok "card", @card
   end
 
   # GET /cards/new
@@ -78,17 +74,12 @@ class CardsController < ApplicationController
   # POST /cards
   # POST /cards.json
   def create
-    if !params[:template]
-      respond_err "card", Card.new, "i18> Template '#{params[:template_name]}' not found."
+    actual_params = clean_params CreateCardParams, params
+    @card = Card.new(actual_params)
+    if @card.save
+      respond_ok "card", @card
     else
-      actual_params = clean_params CreateCardParams, params
-      logger.error ">>>>> #{actual_params}"
-      @card = Card.new(actual_params)
-      if @card.save
-        respond_ok "card", @card
-      else
-        respond_err "card", @card, @card.errors
-      end
+      respond_err "card", @card, @card.errors
     end
   end
 
@@ -105,23 +96,18 @@ class CardsController < ApplicationController
   # DELETE /cards/1
   # DELETE /cards/1.json
   def destroy
-    if @card
-      if @card.destroy
-        respond_ok "card", @card
-      else
-        respond_err "card", @card, @card.errors
-      end
+    if @card.destroy
+      respond_ok "card", @card
     else
-      respond_err "card", nil, "i18> Not found"
+      respond_err "card", @card, @card.errors
     end
   end
 
   private
     def set_card
-      @card = Card.find(params[:id])
+      @card = Card.find_by_id(params[:id])
+      respond_err "card", Card.new, "i18> Card '#{params[:id]}' not found." unless @card
     end
-
-    # Never trust parameters from the scary internet, only allow the white list through.
     def card_create_params
       params.require(:card).permit(:template, :title, :properties)
     end
@@ -129,9 +115,11 @@ class CardsController < ApplicationController
       params.require(:card).permit(:title, :properties)
     end
     def set_template
-      if params[:template_name]
-        template = Template.find_by_name(params[:template_name])
-        params[:template] = template if template
+      template = Template.find_by_name(params[:template_name])
+      if template
+        params[:template] = template
+      else
+        respond_err "card", Card.new, "i18> Template '#{params[:template_name]}' not found."
       end
     end
 end

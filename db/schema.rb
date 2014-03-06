@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140302195818) do
+ActiveRecord::Schema.define(version: 20140304165420) do
 
   create_table "cards", force: true do |t|
     t.integer  "template_id"
@@ -19,7 +19,7 @@ ActiveRecord::Schema.define(version: 20140302195818) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "title"
-    t.boolean  "valid"
+    t.boolean  "is_valid"
   end
 
   create_table "templates", force: true do |t|

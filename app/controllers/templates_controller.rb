@@ -34,11 +34,7 @@ class TemplatesController < ApplicationController
   # GET /templates/1
   # GET /templates/1.json
   def show
-    if @template
-      respond_ok "template", @templates
-    else
-      respond_err "template", @templates, "i18> Template not found"
-    end
+    respond_ok "template", @templates
   end
 
   # GET /templates/new
@@ -51,43 +47,33 @@ class TemplatesController < ApplicationController
   end
 
   def add_property
-    if @template
-      actual_params = clean_params AddPropertyParams, params
-      @template.errors.clear
-      @template.add_property actual_params["property"]
-      if @template.errors.empty?
-        if @template.save
-          respond_ok "template", @template
-          return
-        end
+    actual_params = clean_params AddPropertyParams, params
+    @template.errors.clear
+    @template.add_property actual_params["property"]
+    if @template.errors.empty?
+      if @template.save
+        respond_ok "template", @template
+        return
       end
-    else
-      msgs = "i18> template #{params[:id]} does not exist"
     end
-    msgs = @template.errors.messages if @template
-    respond_err "template", @template, msgs
+    respond_err "template", @template, @template.errors.messages
   end
 
   def update_property
+    ####!!! find action name and unite all 3 actions (add/update/delete)
     @template.update_property(template_property_params)
   end
   def delete_property
     actual_params = clean_params(RemovePropertyParams, params)
-    logger.error ">>>>> #{actual_params}"
-    if @template
-      @template.errors.clear
-      @template.delete_property(actual_params["property"])
-      if @template.errors.empty?
-        if @template.save
-          respond_ok "template", @template
-          return
-        end
+    @template.errors.clear
+    @template.delete_property(actual_params["property"])
+    if @template.errors.empty?
+      if @template.save
+        respond_ok "template", @template
+        return
       end
-    else
-      msgs = "i18> template #{params[:id]} does not exist"
     end
-    msgs = @template.errors.messages if @template
-    respond_err "template", @template, msgs
+    respond_err "template", @template, @template.errors.messages
   end
 
   # POST /templates
@@ -118,14 +104,10 @@ class TemplatesController < ApplicationController
   # DELETE /templates/1
   # DELETE /templates/1.json
   def destroy
-    if @template
-      if @template.destroy
-        respond_ok "template", @template
-      else
-        respond_err "template", @template, @template.errors
-      end
+    if @template.destroy
+      respond_ok "template", @template
     else
-      respond_err "template", nil, "i18> Not found"
+      respond_err "template", @template, @template.errors
     end
   end
 
@@ -138,6 +120,7 @@ class TemplatesController < ApplicationController
       else
         @template = Template.find_by_name(params[:id])
       end
+      respond_err "template", @templates, "i18> Template #{params[:id]} not found" unless @template
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
